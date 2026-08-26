@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Ocorrencias
 
-## Getting Started
+Micro-funcao para relato e acompanhamento de ocorrencias empresariais.
 
-First, run the development server:
+## Stack
+
+- **Next.js 16** (App Router)
+- **React 19** + **TypeScript**
+- **Tailwind CSS 4**
+- **React Hook Form** + **Zod** (formularios e validacao)
+- **localStorage** (persistencia local)
+
+## Funcionalidades
+
+- Relatar ocorrencia (titulo, descricao, categoria, local)
+- Listar ocorrencias com filtros por categoria e status
+- Visualizar detalhes de uma ocorrencia
+- Alterar status (aberta / em analise / resolvida)
+- Remover ocorrencia
+
+## Categorias
+
+| Categoria | Descricao |
+|---|---|
+| `infraestrutura` | Problemas com estrutura fisica |
+| `seguranca` | Incidentes de seguranca |
+| `meio-ambiente` | Questoes ambientais |
+| `saude` | Saude e bem-estar |
+| `outro` | Outras ocorrencias |
+
+## Como rodar
 
 ```bash
+# Instalar dependencias
+npm install
+
+# Desenvolvimento
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Build de producao
+npm run build
+npm start
+
+# Lint
+npm run lint
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Estrutura
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+app/
+  lib/
+    ocorrencias.ts    # Utilitarios CRUD (localStorage)
+  components/
+    Header.tsx        # Navegacao
+    OcorrenciaForm.tsx # Formulario com validacao Zod
+    OcorrenciaCard.tsx # Card de exibicao
+    BadgeStatus.tsx   # Badge de status
+    BadgeCategoria.tsx # Badge de categoria
+  page.tsx            # Pagina inicial
+  layout.tsx          # Layout raiz
+  relatar/
+    page.tsx          # Formulario de relato
+  ocorrencias/
+    page.tsx          # Listagem com filtros
+    [id]/
+      page.tsx        # Detalhe da ocorrencia
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Persistencia
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Os dados sao salvos no `localStorage` do navegador. Para uso em producao, recomenda-se integrar com uma API e banco de dados.
