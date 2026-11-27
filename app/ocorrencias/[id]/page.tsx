@@ -1,11 +1,14 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import {
+  STATUS,
   buscarOcorrencia,
   atualizarStatus,
   removerOcorrencia,
+  subscribe,
   type Ocorrencia,
   type Status,
 } from "../../lib/ocorrencias";
@@ -22,21 +25,10 @@ function formatarData(iso: string): string {
   });
 }
 
-const statusOptions: { value: Status; label: string }[] = [
-  { value: "aberta", label: "Aberta" },
-  { value: "em-analise", label: "Em analise" },
-  { value: "resolvida", label: "Resolvida" },
-];
-
-function subscribe(callback: () => void) {
-  window.addEventListener("storage", callback);
-  return () => window.removeEventListener("storage", callback);
-}
-
 function makeGetSnapshot(id: string) {
   return () => {
     const found = buscarOcorrencia(id);
-    return found ? JSON.stringify(found) : null;
+    return found ? JSON.stringify(found) : "";
   };
 }
 
@@ -57,7 +49,7 @@ export default function OcorrenciaDetalhePage() {
 
   const ocorrencia: Ocorrencia | null = data ? JSON.parse(data) : null;
 
-  if (!ocorrencia) {
+  if (data === null) {
     return (
       <div className="mx-auto max-w-2xl px-6 py-12">
         <p className="text-zinc-500">Carregando...</p>
@@ -65,20 +57,45 @@ export default function OcorrenciaDetalhePage() {
     );
   }
 
+  if (!ocorrencia) {
+    return (
+      <div className="mx-auto max-w-2xl px-6 py-12">
+        <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+          Ocorrencia nao encontrada
+        </h1>
+        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+          Ela pode ter sido removida ou o link esta incorreto.
+        </p>
+        <Link
+          href="/ocorrencias"
+          className="mt-6 inline-flex items-center rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+        >
+          Voltar para a listagem
+        </Link>
+      </div>
+    );
+  }
+
   function handleStatusChange(newStatus: Status) {
     if (!ocorrencia) return;
     const updated = atualizarStatus(ocorrencia.id, newStatus);
-    if (updated) {
-      window.dispatchEvent(new Event("storage"));
+    if (!updated) {
+      alert(
+        "Nao foi possivel atualizar o status. Verifique o armazenamento do navegador.",
+      );
     }
   }
 
   function handleRemover() {
     if (!ocorrencia) return;
-    if (confirm("Tem certeza que deseja remover esta ocorrencia?")) {
-      removerOcorrencia(ocorrencia.id);
-      router.push("/ocorrencias");
+    if (!confirm("Tem certeza que deseja remover esta ocorrencia?")) return;
+    if (!removerOcorrencia(ocorrencia.id)) {
+      alert(
+        "Nao foi possivel remover a ocorrencia. Verifique o armazenamento do navegador.",
+      );
+      return;
     }
+    router.push("/ocorrencias");
   }
 
   return (
@@ -125,11 +142,12 @@ export default function OcorrenciaDetalhePage() {
             Alterar Status
           </h2>
           <div className="mt-2 flex gap-2">
-            {statusOptions.map((opt) => (
+            {STATUS.map((opt) => (
               <button
                 key={opt.value}
                 onClick={() => handleStatusChange(opt.value)}
                 disabled={ocorrencia.status === opt.value}
+                aria-pressed={ocorrencia.status === opt.value}
                 className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
                   ocorrencia.status === opt.value
                     ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"

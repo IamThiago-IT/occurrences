@@ -2,13 +2,12 @@
 
 import { useSyncExternalStore } from "react";
 import Link from "next/link";
-import { listarOcorrencias, type Ocorrencia } from "./lib/ocorrencias";
+import {
+  listarOcorrencias,
+  subscribe,
+  type Ocorrencia,
+} from "./lib/ocorrencias";
 import OcorrenciaCard from "./components/OcorrenciaCard";
-
-function subscribe(callback: () => void) {
-  window.addEventListener("storage", callback);
-  return () => window.removeEventListener("storage", callback);
-}
 
 function getSnapshot() {
   return JSON.stringify(listarOcorrencias());

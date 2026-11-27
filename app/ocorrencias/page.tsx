@@ -2,18 +2,16 @@
 
 import { useSyncExternalStore } from "react";
 import {
+  CATEGORIAS,
+  STATUS,
   listarOcorrencias,
+  subscribe,
   type Categoria,
   type Ocorrencia,
   type Status,
 } from "../lib/ocorrencias";
 import OcorrenciaCard from "../components/OcorrenciaCard";
 import { useState } from "react";
-
-function subscribe(callback: () => void) {
-  window.addEventListener("storage", callback);
-  return () => window.removeEventListener("storage", callback);
-}
 
 function getSnapshot() {
   return JSON.stringify(listarOcorrencias());
@@ -48,25 +46,29 @@ export default function OcorrenciasPage() {
         <select
           value={filtroCategoria}
           onChange={(e) => setFiltroCategoria(e.target.value as Categoria | "")}
+          aria-label="Filtrar por categoria"
           className="rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
         >
           <option value="">Todas categorias</option>
-          <option value="infraestrutura">Infraestrutura</option>
-          <option value="seguranca">Seguranca</option>
-          <option value="meio-ambiente">Meio Ambiente</option>
-          <option value="saude">Saude</option>
-          <option value="outro">Outro</option>
+          {CATEGORIAS.map((c) => (
+            <option key={c.value} value={c.value}>
+              {c.label}
+            </option>
+          ))}
         </select>
 
         <select
           value={filtroStatus}
           onChange={(e) => setFiltroStatus(e.target.value as Status | "")}
+          aria-label="Filtrar por status"
           className="rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
         >
           <option value="">Todos status</option>
-          <option value="aberta">Aberta</option>
-          <option value="em-analise">Em analise</option>
-          <option value="resolvida">Resolvida</option>
+          {STATUS.map((s) => (
+            <option key={s.value} value={s.value}>
+              {s.label}
+            </option>
+          ))}
         </select>
       </div>
 

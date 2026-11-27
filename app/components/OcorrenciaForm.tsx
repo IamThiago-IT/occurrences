@@ -1,26 +1,21 @@
 "use client";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
-import { salvarOcorrencia, type Categoria } from "../lib/ocorrencias";
-
-const categorias: { value: Categoria; label: string }[] = [
-  { value: "infraestrutura", label: "Infraestrutura" },
-  { value: "seguranca", label: "Seguranca" },
-  { value: "meio-ambiente", label: "Meio Ambiente" },
-  { value: "saude", label: "Saude" },
-  { value: "outro", label: "Outro" },
-];
+import { CATEGORIAS, salvarOcorrencia } from "../lib/ocorrencias";
 
 const schema = z.object({
   titulo: z
     .string()
+    .trim()
     .min(3, "Titulo deve ter pelo menos 3 caracteres")
     .max(120, "Titulo muito longo"),
   descricao: z
     .string()
+    .trim()
     .min(10, "Descricao deve ter pelo menos 10 caracteres")
     .max(1000, "Descricao muito longa"),
   categoria: z.enum([
@@ -30,13 +25,14 @@ const schema = z.object({
     "saude",
     "outro",
   ]),
-  local: z.string().max(200, "Local muito longo").optional(),
+  local: z.string().trim().max(200, "Local muito longo").optional(),
 });
 
 type FormData = z.infer<typeof schema>;
 
 export default function OcorrenciaForm() {
   const router = useRouter();
+  const [erro, setErro] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
@@ -52,7 +48,14 @@ export default function OcorrenciaForm() {
   });
 
   function onSubmit(data: FormData) {
-    salvarOcorrencia(data);
+    setErro(null);
+    const nova = salvarOcorrencia(data);
+    if (!nova) {
+      setErro(
+        "Nao foi possivel salvar a ocorrencia. Verifique se o armazenamento do navegador esta disponivel e tente novamente.",
+      );
+      return;
+    }
     router.push("/ocorrencias");
   }
 
@@ -69,7 +72,7 @@ export default function OcorrenciaForm() {
           id="titulo"
           {...register("titulo")}
           className="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm placeholder:text-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
-          placeholder="Ex: Buraco naRua"
+          placeholder="Ex: Buraco na Rua"
         />
         {errors.titulo && (
           <p className="mt-1 text-xs text-red-600">{errors.titulo.message}</p>
@@ -109,7 +112,7 @@ export default function OcorrenciaForm() {
           {...register("categoria")}
           className="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
         >
-          {categorias.map((c) => (
+          {CATEGORIAS.map((c) => (
             <option key={c.value} value={c.value}>
               {c.label}
             </option>
@@ -134,6 +137,15 @@ export default function OcorrenciaForm() {
           <p className="mt-1 text-xs text-red-600">{errors.local.message}</p>
         )}
       </div>
+
+      {erro && (
+        <p
+          role="alert"
+          className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300"
+        >
+          {erro}
+        </p>
+      )}
 
       <button
         type="submit"

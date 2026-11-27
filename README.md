@@ -2,6 +2,10 @@
 
 Micro-funcao para relato e acompanhamento de ocorrencias empresariais.
 
+## Versao
+
+Versao atual: **1.1.0** — veja o [CHANGELOG](./CHANGELOG.md).
+
 ## Stack
 
 - **Next.js 16** (App Router)
@@ -69,4 +73,4 @@ app/
 
 ## Persistencia
 
-Os dados sao salvos no `localStorage` do navegador. Para uso em producao, recomenda-se integrar com uma API e banco de dados.
+Os dados sao salvos no `localStorage` do navegador. A aplicacao valida e descarta registros corrompidos e informa quando o armazenamento esta indisponivel. Para uso em producao, recomenda-se integrar com uma API e banco de dados.
